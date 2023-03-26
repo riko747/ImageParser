@@ -17,12 +17,9 @@ namespace InternalAssets
         [SerializeField] private Transform imagesParentTransform;
         [SerializeField] private TextMeshProUGUI numberOfImagesCount;
 
-        private Dictionary<string, RawImage> _imagesDictionary = new();
+        private readonly Dictionary<string, RawImage> _imagesDictionary = new();
         private RawImage _currentRawImage;
-        private void Awake()
-        {
-            parseButton.onClick.AddListener(PrepareToLoadPage);
-        }
+        private void Awake() => parseButton.onClick.AddListener(PrepareToLoadPage);
 
         private void PrepareToLoadPage() => StartCoroutine(LoadPage());
 
@@ -42,9 +39,7 @@ namespace InternalAssets
                 doc.LoadHtml(html);
 
                 foreach (Transform child in imagesParentTransform)
-                {
                     child.gameObject.SetActive(false);
-                }
 
                 foreach (var img in doc.DocumentNode.SelectNodes("//img"))
                 {
@@ -52,7 +47,7 @@ namespace InternalAssets
 
                     if (string.IsNullOrEmpty(src) || _imagesDictionary.ContainsKey(src))
                     {
-                        _imagesDictionary[src].gameObject.SetActive(true);
+                        if (src != null) _imagesDictionary[src].gameObject.SetActive(true);
                     }
                     else
                     {
@@ -76,9 +71,7 @@ namespace InternalAssets
             yield return request.SendWebRequest();
 
             if (request.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError)
-            {
                 Debug.LogError("Error while loading image: " + request.error);
-            }
             else
             {
                 var texture = DownloadHandlerTexture.GetContent(request);
